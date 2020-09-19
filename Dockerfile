@@ -1,6 +1,8 @@
-FROM node:12
+FROM buildkite/puppeteer:5.2.1
 
 LABEL maintainer="banksio"
+
+ENV  PATH="${PATH}:/node_modules/.bin"
 
 # Create app directory
 WORKDIR /usr/src/app
