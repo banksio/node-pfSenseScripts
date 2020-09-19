@@ -1,21 +1,27 @@
 // Code to scrape YouTube for a playlist (works with videos > 100)
 const puppeteer = require('puppeteer');
+// require('dotenv').config();
 
-var pfSenseIP = process.env.pfSense_IP;
-var ruleID = process.env.pfSense_RuleID;
-var gatewayText = process.env.gatewayText;
+// Scripts
+const ruleGatewayChange = require('./src/scripts/ruleGatewayChange');
+const systemReboot = require('./src/scripts/reboot.js');
 
-var userName = process.env.pfSense_user;
-var userPass = process.env.pfSense_pass;
+const pfSenseIP = process.env.pfSense_IP;
+const ruleID = process.env.pfSense_RuleID;
+const gatewayText = process.env.gatewayText;
+
+const task = process.env.task;
+
+const userName = process.env.pfSense_user;
+const userPass = process.env.pfSense_pass;
 
 const pfSenseAddress = () => "https://" + pfSenseIP;
-const pfSenseRuleAddress = () => "https://" + pfSenseIP + "/firewall_rules_edit.php?id=" + ruleID;
 const pfSenseLogoutAddress = () => "https://" + pfSenseIP + "/index.php?logout";
 
 console.log("Launching puppeteer browser and loading pfSense...");
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: true, defaultViewport: null, ignoreHTTPSErrors: true,
+    const browser = await puppeteer.launch({ headless: false, defaultViewport: null, ignoreHTTPSErrors: true,
         args: [
             // Required for Docker version of Puppeteer
             '--no-sandbox',
@@ -41,32 +47,17 @@ console.log("Launching puppeteer browser and loading pfSense...");
     await navigationPromise;
 
     await page.waitFor(1000);
-    console.log("Loading firewall rule " + ruleID + "...");
-    await page.goto(pfSenseRuleAddress());
-    await navigationPromise;
-
-    await page.waitFor(1000);
-    console.log("Picking new gateway from " + gatewayText + "...");
-    await page.focus("#gateway");
-    await page.evaluate((gatewayTextIncludes) => {
-        const example = document.querySelector('#gateway');
-        const example_options = example.querySelectorAll('option');
-        const selected_option = [...example_options].find(option => option.text.includes(gatewayTextIncludes));
-        
-        console.log("Picked gateway " + selected_option.text + ".");
-
-        selected_option.selected = true;
-    }, gatewayText);
-
-    await page.waitFor(1000);
-    console.log("Saving rule...");
-    await page.click("#save");
-    await navigationPromise;
-    
-    await page.waitFor(1000);
-    console.log("Applying new rules...");
-    await page.click("#\\32  > div > div.alert.alert-warning.clearfix > form > button");
-    await navigationPromise;
+    switch (task) {
+        case "1":
+            await systemReboot.run(page, pfSenseIP);
+            break;
+        case "2":
+            await ruleGatewayChange.run(page, pfSenseIP, ruleID, gatewayText);
+            break;
+        default:
+            console.log("No task selected!");
+            break;
+    }
 
     await page.waitFor(1000);
     console.log("Logging out...");
@@ -75,7 +66,6 @@ console.log("Launching puppeteer browser and loading pfSense...");
 
     console.log("Done! Closing browser.");
     await browser.close();
-
 })()
 
 async function getHref(page, selector) {
