@@ -5,10 +5,13 @@ const puppeteer = require('puppeteer');
 // Scripts
 const ruleGatewayChange = require('./src/scripts/ruleGatewayChange');
 const systemReboot = require('./src/scripts/reboot.js');
+const ruleGatewayCheck = require('./src/scripts/ruleGatewayCheck');
 
 const pfSenseIP = process.env.pfSense_IP;
 const ruleID = process.env.pfSense_RuleID;
 const gatewayText = process.env.gatewayText;
+const firewallInterface = process.env.pfSense_if || "lan";
+const deviceName = process.env.deviceName;
 
 const task = process.env.task;
 
@@ -53,6 +56,9 @@ console.log("Launching puppeteer browser and loading pfSense...");
             break;
         case "2":
             await ruleGatewayChange.run(page, pfSenseIP, ruleID, gatewayText);
+            break;
+        case "4":
+            await ruleGatewayCheck.run(page, pfSenseIP, firewallInterface, deviceName);
             break;
         default:
             console.log("No task selected!");
