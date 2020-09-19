@@ -19,6 +19,7 @@ Variable | Content
 pfSense_IP | The IP address of the pfSense instance to perform the task on.
 pfSense_user | The username to authenticate with the pfSense instance.
 pfSense_pass | The password to authenticate with the pfSense instance.
+task | The task for the script to perform. 1 for reboot and 2 for rule gateway change.
 pfSense_RuleID | The Firewall Rule ID to modify.
 gatewayText | The text to match to the gateway to switch the Firewall Rule to.
 
