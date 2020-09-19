@@ -3,6 +3,5 @@ services:
     pfsensescripts:
         image: banksio/pfsensescripts
         container_name: node-pfsensescripts
-        restart: always
         env_file:
             - pfsensescripts.env
