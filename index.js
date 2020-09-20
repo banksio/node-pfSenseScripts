@@ -5,7 +5,7 @@ require('dotenv').config();
 // Scripts
 const ruleGatewayChange = require('./src/scripts/ruleGatewayChange');
 const systemReboot = require('./src/scripts/reboot.js');
-const trafficTotals = require('./src/scripts/trafficTotals.js');
+// const trafficTotals = require('./src/scripts/trafficTotals.js');
 const ruleGatewayCheck = require('./src/scripts/ruleGatewayCheck');
 
 const pfSenseIP = process.env.pfSense_IP;
@@ -58,9 +58,9 @@ console.log("Launching puppeteer browser and loading pfSense...");
         case "2":
             await ruleGatewayChange.run(page, pfSenseIP, ruleID, gatewayText);
             break;
-        case "3":
-            await trafficTotals.run(page, pfSenseIP);
-            break;
+        // case "3":
+        //     await trafficTotals.run(page, pfSenseIP);
+        //     break;
         case "4":
             await ruleGatewayCheck.run(page, pfSenseIP, firewallInterface, deviceName);
             break;
