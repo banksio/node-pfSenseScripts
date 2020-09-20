@@ -1,11 +1,10 @@
-// Code to scrape YouTube for a playlist (works with videos > 100)
+// Code to perform various admin tasks in a pfSense GUI
 const puppeteer = require('puppeteer');
-require('dotenv').config();
+if (process.env.debug == "true") require('dotenv').config();
 
 // Scripts
 const ruleGatewayChange = require('./src/scripts/ruleGatewayChange');
 const systemReboot = require('./src/scripts/reboot.js');
-// const trafficTotals = require('./src/scripts/trafficTotals.js');
 const ruleGatewayCheck = require('./src/scripts/ruleGatewayCheck');
 
 const pfSenseIP = process.env.pfSense_IP;
@@ -25,7 +24,7 @@ const pfSenseLogoutAddress = () => "https://" + pfSenseIP + "/index.php?logout";
 console.log("Launching puppeteer browser and loading pfSense...");
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: true, defaultViewport: null, ignoreHTTPSErrors: true,
+    const browser = await puppeteer.launch({ headless: (process.env.debug == "true" ? false : true), defaultViewport: null, ignoreHTTPSErrors: true,
         args: [
             // Required for Docker version of Puppeteer
             '--no-sandbox',
@@ -58,9 +57,6 @@ console.log("Launching puppeteer browser and loading pfSense...");
         case "2":
             await ruleGatewayChange.run(page, pfSenseIP, ruleID, gatewayText);
             break;
-        // case "3":
-        //     await trafficTotals.run(page, pfSenseIP);
-        //     break;
         case "4":
             await ruleGatewayCheck.run(page, pfSenseIP, firewallInterface, deviceName);
             break;
