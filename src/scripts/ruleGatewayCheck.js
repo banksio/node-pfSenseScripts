@@ -1,15 +1,15 @@
-const pfSenseTrafficTotals = (pfSenseIP, interface) => {
+const pfSenseInterfaceRules = (pfSenseIP, interface) => {
     return "https://" + pfSenseIP + "/firewall_rules.php?if=" + interface
 };
 
-const run = async (page, pfSenseIP, interface, deviceName) => {
+const run = async (page, pfSenseIP, interface, ruleDesc) => {
     const navigationPromise = page.waitForNavigation();
     console.log("Loading firewall rules for interface " + interface + "...");
-    await page.goto(pfSenseTrafficTotals(pfSenseIP, interface));
+    await page.goto(pfSenseInterfaceRules(pfSenseIP, interface));
     await navigationPromise;
 
     await page.waitFor(1000);
-    console.log("Finding " + deviceName + "...");
+    console.log("Finding " + ruleDesc + "...");
     let data = await page.evaluate((device) => {
         // find all tr elements
         let row = [...document.querySelectorAll('tr')]
@@ -24,7 +24,7 @@ const run = async (page, pfSenseIP, interface, deviceName) => {
             gw: gw,
             device: deviceName
         };
-    }, deviceName)
+    }, ruleDesc)
 
     console.log("Gateway for " + data.device + " is " + data.gw);
 }

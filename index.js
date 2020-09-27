@@ -8,10 +8,9 @@ const systemReboot = require('./src/scripts/reboot.js');
 const ruleGatewayCheck = require('./src/scripts/ruleGatewayCheck');
 
 const pfSenseIP = process.env.pfSense_IP;
-const ruleID = process.env.pfSense_RuleID;
 const gatewayText = process.env.gatewayText;
 const firewallInterface = process.env.pfSense_if || "lan";
-const deviceName = process.env.deviceName;
+const ruleDescription = process.env.pfSense_RuleDesc;
 
 const task = process.env.task;
 
@@ -25,14 +24,14 @@ console.log("Launching puppeteer browser and loading pfSense...");
 
 (async () => {
     const browser = await puppeteer.launch({ headless: (process.env.debug == "true" ? false : true), defaultViewport: null, ignoreHTTPSErrors: true,
-        args: [
+        args: (process.env.debug == "true" ? [] : [
             // Required for Docker version of Puppeteer
             '--no-sandbox',
             '--disable-setuid-sandbox',
             // This will write shared memory files into /tmp instead of /dev/shm,
             // because Docker’s default for /dev/shm is 64MB
             '--disable-dev-shm-usage'
-        ]});
+        ])});
     const page = await browser.newPage();
 
     const navigationPromise = page.waitForNavigation();
@@ -55,10 +54,10 @@ console.log("Launching puppeteer browser and loading pfSense...");
             await systemReboot.run(page, pfSenseIP);
             break;
         case "2":
-            await ruleGatewayChange.run(page, pfSenseIP, ruleID, gatewayText);
+            await ruleGatewayChange.run(page, pfSenseIP, firewallInterface, gatewayText, ruleDescription);
             break;
         case "4":
-            await ruleGatewayCheck.run(page, pfSenseIP, firewallInterface, deviceName);
+            await ruleGatewayCheck.run(page, pfSenseIP, firewallInterface, ruleDescription);
             break;
         default:
             console.log("No task selected!");
