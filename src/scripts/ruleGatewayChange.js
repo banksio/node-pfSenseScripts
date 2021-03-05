@@ -50,7 +50,7 @@ const run = async (page, pfSenseIP, interface, gatewayText, ruleDesc) => {
 
     await page.waitFor(1000);
     console.log("Applying new rules...");
-    await page.click("#\\32  > div > div.alert.alert-warning.clearfix > form > button");
+    await page.click("#\\33  > div > div.alert.alert-warning.clearfix > form > button");
     await navigationPromise;
 }
 
